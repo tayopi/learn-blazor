@@ -20,39 +20,29 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script src="https://kendo.cdn.telerik.com/2018.1.221/js/kendo.all.min.js"></script>
-    <script type="blazor-boot">
-    </script>
+    <script src="_framework/blazor.webassembly.js"></script>
     <script>
-        // Register a very simple JavaScript function that just prints
+        // Define a very simple JavaScript function that just prints
         // the input parameter to the browser's console
-        Blazor.registerFunction('say', (data) => {
+        window.say = async (data) => {
+            // Demonstrate how to call a C# method from JavaScript
+            console.log(await DotNet.invokeMethodAsync('RestApi.Client', 'Concat', 'Recieved call ', 'from C#. ', 'Here is the received parameter:'));
+
             console.dir(data);
 
             // Your function currently has to return something. For demo
             // purposes, we just return `true`.
             return true;
-        });
+        };
     </script>
     <script>
-        Blazor.registerFunction('fillAutocomplete', (customers) => {
+        window.fillAutocomplete = (customers) => {
             // Fill Kendo Autocomplete
             $("#customers").kendoAutoComplete({
                 dataSource: customers,
                 select: (e) => {
                     // Call C# when user selects an item in Kendo's Autocomplete
-                    const assemblyName = 'RestApi.Client';
-                    const namespace = 'RestApi.Client.Pages';
-                    const typeName = 'KendoAutocomplete';
-                    const methodName = 'SelectCustomer';
-
-                    const selectCustomerMethod = Blazor.platform.findMethod(
-                        assemblyName,
-                        namespace,
-                        typeName,
-                        methodName
-                    );
-
-                    let result = Blazor.platform.callMethod(selectCustomerMethod, null, [Blazor.platform.toDotNetString(e.dataItem)]);
+                    DotNet.invokeMethod('RestApi.Client', 'SelectCustomer', e.dataItem);
                 },
                 filter: "startswith",
                 placeholder: "Select customer...",
@@ -60,7 +50,7 @@
             });
 
             return true;
-        });
+        };
     </script>
 </body>
 </html>
